@@ -100,6 +100,26 @@ app.post('/register', function(req, res) {
 
 });
 
+// Delete Expense
+app.get('/deleteExpense/:id', function(req, res) {
+
+    const expenseId = req.params.id;
+
+    const sql = "DELETE FROM expenses WHERE id = ?";
+
+    connection.query(sql, [expenseId], function(err, result) {
+
+        if (err) {
+            console.log(err);
+            return res.send("Error deleting expense.");
+        }
+
+        res.redirect('/expenses');
+
+    });
+
+});
+
 app.get('/logout', function(req, res) {
 
     req.session.destroy(function(err) {
