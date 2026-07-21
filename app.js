@@ -9,8 +9,8 @@ const port = 3000;
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '?????',          // Change to your MySQL password
-    database: '??????'
+    password: '?????',      // Change to your MySQL password
+    database: '??????'      // Change to your database name
 });
 
 connection.connect(function(err) {
@@ -31,7 +31,7 @@ app.use(session({
     saveUninitialized: true
 }));
 
-
+// Home Page
 app.get('/', function(req, res) {
 
     if (!req.session.user) {
@@ -44,10 +44,12 @@ app.get('/', function(req, res) {
 
 });
 
+// Login Page
 app.get('/login', function(req, res) {
     res.render('login');
 });
 
+// Login
 app.post('/login', function(req, res) {
 
     const { email, password } = req.body;
@@ -64,7 +66,6 @@ app.post('/login', function(req, res) {
         if (results.length > 0) {
 
             req.session.user = results[0];
-
             res.redirect('/');
 
         } else {
@@ -77,10 +78,12 @@ app.post('/login', function(req, res) {
 
 });
 
+// Register Page
 app.get('/register', function(req, res) {
     res.render('register');
 });
 
+// Register
 app.post('/register', function(req, res) {
 
     const { username, email, password } = req.body;
@@ -95,6 +98,30 @@ app.post('/register', function(req, res) {
         }
 
         res.redirect('/login');
+
+    });
+
+});
+
+// View Expenses
+app.get('/expenses', function(req, res) {
+
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    const sql = "SELECT * FROM expenses";
+
+    connection.query(sql, function(err, results) {
+
+        if (err) {
+            console.log(err);
+            return res.send("Database Error");
+        }
+
+        res.render('expenses', {
+            expenses: results
+        });
 
     });
 
@@ -120,6 +147,7 @@ app.get('/deleteExpense/:id', function(req, res) {
 
 });
 
+// Logout
 app.get('/logout', function(req, res) {
 
     req.session.destroy(function(err) {
@@ -135,5 +163,5 @@ app.get('/logout', function(req, res) {
 });
 
 app.listen(port, function () {
-  console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server running at http://localhost:${port}`);
 });
