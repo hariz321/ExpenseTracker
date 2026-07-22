@@ -78,6 +78,36 @@ app.post('/login', function (req, res) {
 
 });
 
+// Admin Login
+app.post('/admin/login', function (req, res) {
+
+    const { email, password } = req.body;
+
+    const sql = "SELECT * FROM admins WHERE email = ? AND password = ?";
+
+    connection.query(sql, [email, password], function (err, results) {
+
+        if (err) {
+            console.log(err);
+            return res.send("Database Error");
+        }
+
+        if (results.length > 0) {
+
+            req.session.admin = results[0];
+
+            res.redirect('/admin');
+
+        } else {
+
+            res.send("Invalid Admin Email or Password");
+
+        }
+
+    });
+
+});
+
 // Register Page
 app.get('/register', function (req, res) {
     res.render('register');
@@ -104,13 +134,26 @@ app.post('/register', function (req, res) {
 });
 
 // Add Expense 
-app.get('/addExpense', (req, res) => {
+// Add Expense Page
+app.get('/addExpense', function (req, res) {
+
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
     res.render('addExpense', {
         error: null
     });
+
 });
 
-app.post('/addExpense', (req, res) => {
+// Add Expense
+app.post('/addExpense', function (req, res) {
+
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
     const {
         title,
         amount,
@@ -147,19 +190,35 @@ app.post('/addExpense', (req, res) => {
         description ? description.trim() : null
     ];
 
-    connection.query(sql, values, (error, result) => {
+    connection.query(sql, values, function (error, result) {
+
         if (error) {
             console.error('Error adding expense:', error);
 
             return res.status(500).render('addExpense', {
                 error: 'Unable to add the expense. Please try again.'
             });
-        } 
+        }
 
         console.log('Expense added with ID:', result.insertId);
 
         res.redirect('/expenses');
+
     });
+
+});
+
+// Admin Dashboard
+app.get('/admin', function (req, res) {
+
+    if (!req.session.admin) {
+        return res.redirect('/login');
+    }
+
+    res.render('admin', {
+        admin: req.session.admin
+    });
+
 });
 
 // View Expenses
