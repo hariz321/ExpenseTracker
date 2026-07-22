@@ -9,8 +9,8 @@ const port = 3000;
 const connection = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: 'RP738964$',      // Change to your MySQL password
-    database: 'c237_expensetracker_local'      // Change to your database name
+    password: '????',      // Change to your MySQL password
+    database: '????'      // Change to your database name
 });
 
 connection.connect(function (err) {
@@ -160,14 +160,6 @@ app.post('/addExpense', function (req, res) {
     const expenseDate = req.body.expense_date;
     const description = req.body.description;
 
-    console.log('Submitted expense:', {
-        title,
-        amount,
-        category,
-        expenseDate,
-        description
-    });
-
     if (!title || !amount || !category || !expenseDate) {
         return res.status(400).render('addExpense', {
             error: 'Please complete all required fields.'
@@ -188,30 +180,22 @@ app.post('/addExpense', function (req, res) {
         VALUES (?, ?, ?, ?, ?)
     `;
 
-    const values = [
-        title.trim(),
-        numericAmount,
-        category,
-        expenseDate,
-        description && description.trim() !== ''
-            ? description.trim()
-            : null
-    ];
+    connection.query(
+        sql,
+        [title, numericAmount, category, expenseDate, description],
+        function (err, result) {
 
-    connection.query(sql, values, function (err, result) {
+            if (err) {
+                console.log(err);
 
-        if (err) {
-            console.error('Add Expense SQL Error:', err);
+                return res.status(500).render('addExpense', {
+                    error: 'Unable to add expense. Please try again.'
+                });
+            }
 
-            return res.status(500).render('addExpense', {
-                error: `Unable to add expense: ${err.message}`
-            });
+            res.redirect('/expenses');
         }
-
-        console.log('Expense added with ID:', result.insertId);
-
-        return res.redirect('/expenses');
-    });
+    );
 });
 
 // Admin Dashboard
@@ -227,7 +211,6 @@ app.get('/admin', function (req, res) {
 
 });
 
-// View Expenses
 // View Expenses
 app.get('/expenses', function (req, res) {
 
@@ -260,7 +243,6 @@ app.get('/expenses', function (req, res) {
     });
 });
 
-// View Individual Expense
 // View Individual Expense
 app.get('/expenses/:id', function (req, res) {
 
