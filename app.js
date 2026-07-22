@@ -301,6 +301,61 @@ app.get('/deleteExpense/:id', function (req, res) {
 
 });
 
+// Edit Expense Page (GET)
+app.get('/editExpense/:id', function (req, res) {
+
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    const expenseId = req.params.id;
+
+    const sql = "SELECT * FROM expenses WHERE id = ?";
+
+    connection.query(sql, [expenseId], function (err, results) {
+
+        if (err) {
+            console.log(err);
+            return res.send("Database Error");
+        }
+
+        if (results.length === 0) {
+            return res.send("Expense not found.");
+        }
+
+        res.render('editExpense', {
+            expense: results[0]
+        });
+
+    });
+
+});
+
+// Update Expense (POST)
+app.post('/editExpense/:id', function (req, res) {
+
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    const expenseId = req.params.id;
+    const { title, amount, category } = req.body;
+
+    const sql = "UPDATE expenses SET title = ?, amount = ?, category = ? WHERE id = ?";
+
+    connection.query(sql, [title, amount, category, expenseId], function (err, result) {
+
+        if (err) {
+            console.log(err);
+            return res.send("Error updating expense.");
+        }
+
+        res.redirect('/expenses');
+
+    });
+
+});
+
 // Logout
 app.get('/logout', function (req, res) {
 
