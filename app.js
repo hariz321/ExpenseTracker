@@ -9,8 +9,8 @@ const port = 3000;
 const connection = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: '???????',      // Change to your MySQL password
-    database: '???????'      // Change to your database name
+    password: 'RP738964$',      // Change to your MySQL password
+    database: 'c237_expensetracker_local'      // Change to your database name
 });
 
 connection.connect(function (err) {
@@ -144,8 +144,8 @@ app.get('/addExpense', function (req, res) {
     res.render('addExpense', {
         error: null
     });
-
 });
+
 
 // Add Expense
 app.post('/addExpense', function (req, res) {
@@ -154,25 +154,31 @@ app.post('/addExpense', function (req, res) {
         return res.redirect('/login');
     }
 
-    const {
+    const title = req.body.title;
+    const amount = req.body.amount;
+    const category = req.body.category;
+    const expenseDate = req.body.expense_date;
+    const description = req.body.description;
+
+    console.log('Submitted expense:', {
         title,
         amount,
         category,
-        expense_date,
+        expenseDate,
         description
-    } = req.body;
+    });
 
-    if (!title || !amount || !category || !expense_date) {
+    if (!title || !amount || !category || !expenseDate) {
         return res.status(400).render('addExpense', {
             error: 'Please complete all required fields.'
         });
     }
 
-    const numericAmount = Number(amount);
+    const numericAmount = parseFloat(amount);
 
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+    if (isNaN(numericAmount) || numericAmount <= 0) {
         return res.status(400).render('addExpense', {
-            error: 'Amount must be more than $0.'
+            error: 'Amount must be greater than $0.'
         });
     }
 
@@ -186,26 +192,26 @@ app.post('/addExpense', function (req, res) {
         title.trim(),
         numericAmount,
         category,
-        expense_date,
-        description ? description.trim() : null
+        expenseDate,
+        description && description.trim() !== ''
+            ? description.trim()
+            : null
     ];
 
-    connection.query(sql, values, function (error, result) {
+    connection.query(sql, values, function (err, result) {
 
-        if (error) {
-            console.error('Error adding expense:', error);
+        if (err) {
+            console.error('Add Expense SQL Error:', err);
 
             return res.status(500).render('addExpense', {
-                error: 'Unable to add the expense. Please try again.'
+                error: `Unable to add expense: ${err.message}`
             });
         }
 
         console.log('Expense added with ID:', result.insertId);
 
-        res.redirect('/expenses');
-
+        return res.redirect('/expenses');
     });
-
 });
 
 // Admin Dashboard
@@ -222,57 +228,75 @@ app.get('/admin', function (req, res) {
 });
 
 // View Expenses
+// View Expenses
 app.get('/expenses', function (req, res) {
 
-    if (!req.session.user) {
+    if (!req.session.user && !req.session.admin) {
         return res.redirect('/login');
     }
 
-    const sql = "SELECT * FROM expenses";
+    const sql = `
+        SELECT
+            id,
+            title,
+            amount,
+            category,
+            expense_date,
+            description
+        FROM expenses
+        ORDER BY expense_date DESC, id DESC
+    `;
 
     connection.query(sql, function (err, results) {
 
         if (err) {
-            console.log(err);
-            return res.send("Database Error");
+            console.error('View Expenses SQL Error:', err);
+            return res.send('Database Error');
         }
 
         res.render('expenses', {
             expenses: results
         });
-
     });
-
 });
 
 // View Individual Expense
+// View Individual Expense
 app.get('/expenses/:id', function (req, res) {
 
-    if (!req.session.user) {
+    if (!req.session.user && !req.session.admin) {
         return res.redirect('/login');
     }
 
     const expenseId = req.params.id;
 
-    const sql = "SELECT * FROM expenses WHERE id = ?";
+    const sql = `
+        SELECT
+            id,
+            title,
+            amount,
+            category,
+            expense_date,
+            description
+        FROM expenses
+        WHERE id = ?
+    `;
 
     connection.query(sql, [expenseId], function (err, results) {
 
         if (err) {
-            console.log(err);
-            return res.send("Database Error");
+            console.error('View Expense SQL Error:', err);
+            return res.send('Database Error');
         }
 
         if (results.length === 0) {
-            return res.send("Expense not found.");
+            return res.status(404).send('Expense not found.');
         }
 
         res.render('viewExpense', {
             expense: results[0]
         });
-
     });
-
 });
 
 // Delete Expense
