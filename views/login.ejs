@@ -14,6 +14,8 @@
     <title>Expense Tracker - Login</title>
 </head>
 
+
+
 <body class="bg-light">
     <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
         <div class="container">
@@ -41,8 +43,17 @@
                             <p class="text-muted mb-0">Log in to manage your expenses.</p>
                         </div>
 
-                        <form action="/login" method="POST">
+                        <form id="loginForm" action="/login" method="POST">
                             <div class="mb-3">
+                                <label for="loginType" class="form-label">Login As</label>
+
+                                <select class="form-select" id="loginType">
+                                    <option value="user" selected>User</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
                                 <label for="email" class="form-label">Email</label>
 
                                 <input
@@ -55,7 +66,7 @@
                                 >
                             </div>
 
-                            <div class="mb-4">
+                            <div class="mb-5">
                                 <label for="password" class="form-label">Password</label>
 
                                 <input
@@ -70,12 +81,26 @@
                             <button type="submit" class="btn btn-primary w-100">Login</button>
                         </form>
 
-                        <p class="text-center mt-4 mb-0"> Don't have an account? <a href="/register">Register</a>
+                        <p class="text-center mt-5 mb-0"> Don't have an account? <a href="/register">Register</a>
                         </p>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+    <script>
+        const loginType = document.getElementById("loginType");
+        const loginForm = document.getElementById("loginForm");
+
+        loginType.addEventListener("change", function () {
+
+            if (this.value === "admin") {
+                loginForm.action = "/admin/login";
+            } else {
+                loginForm.action = "/login";
+            }
+
+        });
+    </script>
 </body>
 </html>

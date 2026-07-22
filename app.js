@@ -78,6 +78,36 @@ app.post('/login', function (req, res) {
 
 });
 
+// Admin Login
+app.post('/admin/login', function (req, res) {
+
+    const { email, password } = req.body;
+
+    const sql = "SELECT * FROM admins WHERE email = ? AND password = ?";
+
+    connection.query(sql, [email, password], function (err, results) {
+
+        if (err) {
+            console.log(err);
+            return res.send("Database Error");
+        }
+
+        if (results.length > 0) {
+
+            req.session.admin = results[0];
+
+            res.redirect('/admin');
+
+        } else {
+
+            res.send("Invalid Admin Email or Password");
+
+        }
+
+    });
+
+});
+
 // Register Page
 app.get('/register', function (req, res) {
     res.render('register');
@@ -99,6 +129,19 @@ app.post('/register', function (req, res) {
 
         res.redirect('/login');
 
+    });
+
+});
+
+// Admin Dashboard
+app.get('/admin', function (req, res) {
+
+    if (!req.session.admin) {
+        return res.redirect('/login');
+    }
+
+    res.render('admin', {
+        admin: req.session.admin
     });
 
 });
