@@ -7,13 +7,13 @@ const app = express();
 const port = 3000;
 
 const connection = mysql.createConnection({
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'root',
-    password: '?????',      // Change to your MySQL password
+    password: '??????',      // Change to your MySQL password
     database: '??????'      // Change to your database name
 });
 
-connection.connect(function(err) {
+connection.connect(function (err) {
     if (err) {
         console.log("Database Connection Failed");
         console.log(err);
@@ -32,7 +32,7 @@ app.use(session({
 }));
 
 // Home Page
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
 
     if (!req.session.user) {
         return res.redirect('/login');
@@ -45,18 +45,18 @@ app.get('/', function(req, res) {
 });
 
 // Login Page
-app.get('/login', function(req, res) {
+app.get('/login', function (req, res) {
     res.render('login');
 });
 
 // Login
-app.post('/login', function(req, res) {
+app.post('/login', function (req, res) {
 
     const { email, password } = req.body;
 
     const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
 
-    connection.query(sql, [email, password], function(err, results) {
+    connection.query(sql, [email, password], function (err, results) {
 
         if (err) {
             console.log(err);
@@ -79,18 +79,18 @@ app.post('/login', function(req, res) {
 });
 
 // Register Page
-app.get('/register', function(req, res) {
+app.get('/register', function (req, res) {
     res.render('register');
 });
 
 // Register
-app.post('/register', function(req, res) {
+app.post('/register', function (req, res) {
 
     const { username, email, password } = req.body;
 
     const sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
 
-    connection.query(sql, [username, email, password], function(err, result) {
+    connection.query(sql, [username, email, password], function (err, result) {
 
         if (err) {
             console.log(err);
@@ -104,7 +104,7 @@ app.post('/register', function(req, res) {
 });
 
 // View Expenses
-app.get('/expenses', function(req, res) {
+app.get('/expenses', function (req, res) {
 
     if (!req.session.user) {
         return res.redirect('/login');
@@ -112,7 +112,7 @@ app.get('/expenses', function(req, res) {
 
     const sql = "SELECT * FROM expenses";
 
-    connection.query(sql, function(err, results) {
+    connection.query(sql, function (err, results) {
 
         if (err) {
             console.log(err);
@@ -127,14 +127,44 @@ app.get('/expenses', function(req, res) {
 
 });
 
+// View Individual Expense
+app.get('/expenses/:id', function (req, res) {
+
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    const expenseId = req.params.id;
+
+    const sql = "SELECT * FROM expenses WHERE id = ?";
+
+    connection.query(sql, [expenseId], function (err, results) {
+
+        if (err) {
+            console.log(err);
+            return res.send("Database Error");
+        }
+
+        if (results.length === 0) {
+            return res.send("Expense not found.");
+        }
+
+        res.render('viewExpense', {
+            expense: results[0]
+        });
+
+    });
+
+});
+
 // Delete Expense
-app.get('/deleteExpense/:id', function(req, res) {
+app.get('/deleteExpense/:id', function (req, res) {
 
     const expenseId = req.params.id;
 
     const sql = "DELETE FROM expenses WHERE id = ?";
 
-    connection.query(sql, [expenseId], function(err, result) {
+    connection.query(sql, [expenseId], function (err, result) {
 
         if (err) {
             console.log(err);
@@ -148,9 +178,9 @@ app.get('/deleteExpense/:id', function(req, res) {
 });
 
 // Logout
-app.get('/logout', function(req, res) {
+app.get('/logout', function (req, res) {
 
-    req.session.destroy(function(err) {
+    req.session.destroy(function (err) {
 
         if (err) {
             console.log(err);
