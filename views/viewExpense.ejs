@@ -66,6 +66,21 @@
                             <span class="badge text-bg-secondary"> <%= expense.category %></span>
                         </div>
 
+                        <div class="mb-3">
+                            <strong>Date:</strong>
+                            <span>
+                                <%= new Date(expense.expense_date).toLocaleDateString('en-SG') %>
+                            </span>
+                        </div>
+
+                        <div class="mb-4">
+                            <strong>Description:</strong>
+
+                            <div class="border rounded p-3 mt-2 bg-light">
+                                <%= expense.description || 'No description provided.' %>
+                            </div>
+                        </div>
+
                         <a href="/editExpense/<%= expense.id %>" class="btn btn-warning me-2">Edit</a>
 
                         <a href="/expenses" class="btn btn-outline-secondary" >Back to Expenses</a>

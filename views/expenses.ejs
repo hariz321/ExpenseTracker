@@ -26,10 +26,15 @@
             <div class="ms-auto">
                 <a class="nav-link text-white d-inline me-3" href="/">Home</a>
 
-                <a class="nav-link text-white d-inline me-3" href="/addExpense">Add Expense</a>
+                <a class="nav-link text-white d-inline me-3" href="/addExpense">
+                    Add Expense
+                </a>
 
-                <a class="nav-link text-white d-inline" href="/logout">Logout</a>
+                <a class="nav-link text-white d-inline" href="/logout">
+                    Logout
+                </a>
             </div>
+
         </div>
     </nav>
 
@@ -40,14 +45,19 @@
             <div>
                 <h1 class="fw-bold mb-1">Manage Expenses</h1>
 
-                <p class="text-muted mb-0">View and manage your recorded expenses.</p>
+                <p class="text-muted mb-0">
+                    View and manage your recorded expenses.
+                </p>
             </div>
 
-            <a href="/addExpense" class="btn btn-success">Add Expense</a>
+            <a href="/addExpense" class="btn btn-success">
+                Add Expense
+            </a>
 
         </div>
 
         <div class="card shadow-sm">
+
             <div class="card-body">
 
                 <% if (expenses.length === 0) { %>
@@ -56,22 +66,29 @@
 
                         <h4>No expenses found</h4>
 
-                        <p class="text-muted">Add your first expense to get started.</p>
+                        <p class="text-muted">
+                            Add your first expense to get started.
+                        </p>
 
-                        <a href="/addExpense" class="btn btn-primary">Add Expense</a>
+                        <a href="/addExpense" class="btn btn-primary">
+                            Add Expense
+                        </a>
 
                     </div>
 
                 <% } else { %>
 
                     <div class="table-responsive">
+
                         <table class="table table-striped table-hover align-middle mb-0">
+
                             <thead class="table-dark">
                                 <tr>
                                     <th>ID</th>
                                     <th>Title</th>
                                     <th>Amount</th>
                                     <th>Category</th>
+                                    <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -79,36 +96,83 @@
                             <tbody>
 
                                 <% expenses.forEach(function(expense) { %>
+
                                     <tr>
-                                        <td><%= expense.id %></td>
-                                        <td><%= expense.title %></td>
-                                        <td>$<%= Number(expense.amount).toFixed(2) %></td>
 
                                         <td>
-                                            <span class="badge text-bg-secondary"><%= expense.category %></span>
+                                            <%= expense.id %>
                                         </td>
 
                                         <td>
-                                            <a href="/expenses/<%= expense.id %>" class="btn btn-primary btn-sm me-1">View</a>
+                                            <%= expense.title %>
+                                        </td>
 
-                                            <a href="/editExpense/<%= expense.id %>" class="btn btn-warning btn-sm me-1">Edit</a>
+                                        <td>
+                                            $<%= Number(expense.amount).toFixed(2) %>
+                                        </td>
 
-                                            <a href="/deleteExpense/<%= expense.id %>" class="btn btn-danger btn-sm" 
-                                                onclick="return confirm('Are you sure you want to delete this expense?')">Delete
+                                        <td>
+                                            <span class="badge text-bg-secondary">
+                                                <%= expense.category %>
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <%= new Date(expense.expense_date).toLocaleDateString('en-SG') %>
+                                        </td>
+
+                                        <td>
+
+                                            <a
+                                                href="/expenses/<%= expense.id %>"
+                                                class="btn btn-primary btn-sm me-1"
+                                            >
+                                                View
                                             </a>
+
+                                            <a
+                                                href="/editExpense/<%= expense.id %>"
+                                                class="btn btn-warning btn-sm me-1"
+                                            >
+                                                Edit
+                                            </a>
+
+                                            <a
+                                                href="/deleteExpense/<%= expense.id %>"
+                                                class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Are you sure you want to delete this expense?')"
+                                            >
+                                                Delete
+                                            </a>
+
                                         </td>
+
                                     </tr>
+
                                 <% }); %>
+
                             </tbody>
+
                         </table>
+
                     </div>
+
                 <% } %>
+
             </div>
+
         </div>
 
         <div class="mt-4">
-            <a href="/" class="btn btn-outline-secondary">Back to Dashboard</a>
+
+            <a href="/" class="btn btn-outline-secondary">
+                Back to Dashboard
+            </a>
+
         </div>
+
     </main>
+
 </body>
+
 </html>

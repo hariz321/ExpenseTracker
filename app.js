@@ -9,8 +9,8 @@ const port = 3000;
 const connection = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: '??????',      // Change to your MySQL password
-    database: '??????'      // Change to your database name
+    password: '???????',      // Change to your MySQL password
+    database: '???????'      // Change to your database name
 });
 
 connection.connect(function (err) {
@@ -101,6 +101,65 @@ app.post('/register', function (req, res) {
 
     });
 
+});
+
+// Add Expense 
+app.get('/addExpense', (req, res) => {
+    res.render('addExpense', {
+        error: null
+    });
+});
+
+app.post('/addExpense', (req, res) => {
+    const {
+        title,
+        amount,
+        category,
+        expense_date,
+        description
+    } = req.body;
+
+    if (!title || !amount || !category || !expense_date) {
+        return res.status(400).render('addExpense', {
+            error: 'Please complete all required fields.'
+        });
+    }
+
+    const numericAmount = Number(amount);
+
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+        return res.status(400).render('addExpense', {
+            error: 'Amount must be more than $0.'
+        });
+    }
+
+    const sql = `
+        INSERT INTO expenses
+        (title, amount, category, expense_date, description)
+        VALUES (?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+        title.trim(),
+        numericAmount,
+        category,
+        expense_date,
+        description ? description.trim() : null
+    ];
+
+    connection.query(sql, values, (error, result) => {
+        if (error) {
+            console.error('Error adding expense:', error);
+
+            return res.status(500).render('addExpense', {
+                error: 'Unable to add the expense. Please try again.'
+            });
+        } 
+
+        console.log('Expense added with ID:', result.insertId);
+
+        res.redirect('/expenses');
+    });
 });
 
 // View Expenses
