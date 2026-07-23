@@ -7,10 +7,13 @@ const app = express();
 const port = 3000;
 
 const connection = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'RP738964$',      // Change to your MySQL password
-    database: 'c237_expensetrackerdb'      // Change to your database name
+    host: 'c237-hannah-mysql.mysql.database.azure.com',
+    user: 'c237_016',
+    password: 'c237016@2026!',
+    database: 'c237_016_t1ca2',
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 connection.connect(function (err) {
