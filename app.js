@@ -44,12 +44,12 @@ app.get('/', function (req, res) {
 
 });
 
-// Login Page (shafiq)
+// Login Page
 app.get('/login', function (req, res) {
     res.render('login');
 });
 
-// Login (shafiq)
+// Login 
 app.post('/login', function (req, res) {
 
     const { email, password } = req.body;
@@ -237,8 +237,44 @@ app.get('/expenses', function (req, res) {
             return res.send('Database Error');
         }
 
+        // ----- Summary calculations (Total Spent + By Category) -----
+
+        let totalAmount = 0;
+        const categoryTotals = {};
+
+        results.forEach(function (expense) {
+
+            const amount = Number(expense.amount) || 0;
+
+            totalAmount += amount;
+
+            if (!categoryTotals[expense.category]) {
+                categoryTotals[expense.category] = 0;
+            }
+
+            categoryTotals[expense.category] += amount;
+
+        });
+
+        // Convert to array and sort from highest to lowest spending
+        const categorySummary = Object.keys(categoryTotals)
+            .map(function (category) {
+                return {
+                    category: category,
+                    total: categoryTotals[category]
+                };
+            })
+            .sort(function (a, b) {
+                return b.total - a.total;
+            });
+
+        const expenseCount = results.length;
+
         res.render('expenses', {
-            expenses: results
+            expenses: results,
+            totalAmount: totalAmount,
+            expenseCount: expenseCount,
+            categorySummary: categorySummary
         });
     });
 });

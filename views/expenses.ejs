@@ -41,6 +41,84 @@
             <a href="/addExpense" class="btn btn-success">Add Expense</a>
 
         </div>
+
+        <!-- ===== Spending Summary ===== --> 
+        <% if (expenses.length > 0) { %>
+
+            <!-- Total Spent card -->
+            <div class="card border-0 shadow-sm mb-4 text-white"
+                style="background: linear-gradient(120deg, #7b2ff7, #9f44d3); border-radius: 1rem;">
+                <div class="card-body p-4">
+
+                    <p class="text-uppercase fw-bold mb-1" style="letter-spacing: 2px; font-size: 0.8rem;">
+                        Total Spent
+                    </p>
+
+                    <h1 class="display-5 fw-bold mb-1">
+                        $<%= totalAmount.toFixed(2) %>
+                    </h1>
+
+                    <p class="mb-0" style="opacity: 0.85;">
+                        across <%= expenseCount %> expense<%= expenseCount === 1 ? '' : 's' %>
+                    </p>
+
+                </div>
+            </div>
+
+            <!-- By Category card -->
+            <div class="card shadow-sm mb-4" style="border-radius: 1rem;">
+                <div class="card-body p-4">
+
+                    <p class="text-uppercase fw-bold text-muted mb-3"
+                        style="letter-spacing: 2px; font-size: 0.8rem;">
+                        By Category
+                    </p>
+
+                    <%
+                        const barColors = ['#14b8a6', '#8b5cf6', '#3b82f6', '#f59e0b', '#ef4444', '#ec4899', '#6b7280'];
+                        const topCategories = categorySummary.slice(0, 4);
+                        const remaining = categorySummary.length - topCategories.length;
+                        const maxTotal = categorySummary.length > 0 ? categorySummary[0].total : 0;
+                    %>
+
+                    <% topCategories.forEach(function(item, index) { %>
+
+                        <div class="d-flex align-items-center mb-3">
+
+                            <div style="width: 110px;" class="flex-shrink-0">
+                                <%= item.category %>
+                            </div>
+
+                            <div class="flex-grow-1 mx-3">
+                                <div class="progress" style="height: 10px; border-radius: 5px;">
+                                    <div class="progress-bar"
+                                        style="width: <%= maxTotal > 0 ? Math.round((item.total / maxTotal) * 100) : 0 %>%;
+                                               background-color: <%= barColors[index % barColors.length] %>;
+                                               border-radius: 5px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="width: 90px;" class="text-end fw-semibold flex-shrink-0">
+                                $<%= item.total.toFixed(2) %>
+                            </div>
+
+                        </div>
+
+                    <% }); %>
+
+                    <% if (remaining > 0) { %>
+                        <p class="text-muted mb-0" style="font-size: 0.85rem;">
+                            + <%= remaining %> more categor<%= remaining === 1 ? 'y' : 'ies' %> in the list below
+                        </p>
+                    <% } %>
+
+                </div>
+            </div>
+
+        <% } %>
+        <!-- ===== End Spending Summary ===== -->
+
         <div class="card shadow-sm">
             <div class="card-body">
                 <% if (expenses.length===0) { %>
