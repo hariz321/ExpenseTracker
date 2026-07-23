@@ -44,12 +44,12 @@ app.get('/', function (req, res) {
 
 });
 
-// Login Page
+// Login Page (shafiq)
 app.get('/login', function (req, res) {
     res.render('login');
 });
 
-// Login
+// Login (shafiq)
 app.post('/login', function (req, res) {
 
     const { email, password } = req.body;
@@ -78,7 +78,7 @@ app.post('/login', function (req, res) {
 
 });
 
-// Admin Login
+// Admin Login (Nicolette)
 app.post('/admin/login', function (req, res) {
 
     const { email, password } = req.body;
@@ -198,7 +198,7 @@ app.post('/addExpense', function (req, res) {
     );
 });
 
-// Admin Dashboard
+// Admin Dashboard (Nicolette)
 app.get('/admin', function (req, res) {
 
     if (!req.session.admin) {
@@ -281,7 +281,7 @@ app.get('/expenses/:id', function (req, res) {
     });
 });
 
-// Delete Expense
+// Delete Expense (Nicolette)
 app.get('/deleteExpense/:id', function (req, res) {
 
     const expenseId = req.params.id;
@@ -356,7 +356,7 @@ app.post('/editExpense/:id', function (req, res) {
 
 });
 
-// Logout
+// Logout (shafiq)
 app.get('/logout', function (req, res) {
 
     req.session.destroy(function (err) {
