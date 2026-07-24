@@ -9,11 +9,8 @@ const port = 3000;
 const connection = mysql.createConnection({
     host: 'c237-hannah-mysql.mysql.database.azure.com',
     user: 'c237_016',
-    password: 'c237016@2026!',
-    database: 'c237_016_t1ca2',
-    ssl: {
-        rejectUnauthorized: false
-    }
+    password: 'c237016@2026!',      // Change to your MySQL password
+    database: 'c237_016_t1ca2'      // Change to your database name
 });
 
 connection.connect(function (err) {
@@ -214,33 +211,38 @@ app.get('/admin', function (req, res) {
 
 });
 
-// View Expenses
+
+// View / Search / Filter Expenses (shaqil)
 app.get('/expenses', function (req, res) {
 
     if (!req.session.user && !req.session.admin) {
         return res.redirect('/login');
     }
 
-    const sql = `
-        SELECT
-            id,
-            title,
-            amount,
-            category,
-            expense_date,
-            description
-        FROM expenses
-        ORDER BY expense_date DESC, id DESC
-    `;
+    const search = req.query.search || "";
+    const category = req.query.category || "";
 
-    connection.query(sql, function (err, results) {
+    let sql = "SELECT * FROM expenses WHERE 1=1";
+    let values = [];
+
+    if (search !== "") {
+        sql += " AND title LIKE ?";
+        values.push("%" + search + "%");
+    }
+
+    if (category !== "") {
+        sql += " AND category = ?";
+        values.push(category);
+    }
+
+    connection.query(sql, values, function (err, results) {
 
         if (err) {
-            console.error('View Expenses SQL Error:', err);
-            return res.send('Database Error');
+            console.error(err);
+            return res.send("Database Error");
         }
 
-        // ----- Summary calculations (Total Spent + By Category) -----
+        // ----- Summary calculations -----
 
         let totalAmount = 0;
         const categoryTotals = {};
@@ -259,27 +261,42 @@ app.get('/expenses', function (req, res) {
 
         });
 
-        // Convert to array and sort from highest to lowest spending
         const categorySummary = Object.keys(categoryTotals)
-            .map(function (category) {
+            .map(function(category) {
                 return {
                     category: category,
                     total: categoryTotals[category]
                 };
             })
-            .sort(function (a, b) {
+            .sort(function(a, b) {
                 return b.total - a.total;
             });
 
         const expenseCount = results.length;
 
-        res.render('expenses', {
+console.log("Rendering expenses...");
+console.log({
+    totalAmount,
+    expenseCount,
+    categorySummary
+});
+
+console.log("Rendering expenses page");
+console.log("totalAmount =", totalAmount);
+console.log("expenseCount =", expenseCount);
+console.log("categorySummary =", categorySummary);
+
+        res.render("expenses", {
             expenses: results,
+            search: search,
+            category: category,
             totalAmount: totalAmount,
             expenseCount: expenseCount,
             categorySummary: categorySummary
         });
+
     });
+
 });
 
 // View Individual Expense
